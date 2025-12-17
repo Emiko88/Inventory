@@ -1,0 +1,21 @@
+[project]
+name = "inventory"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Emiko88",email = "gladkiy.2005@mail.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "litestar[standard] (>=2.19.0,<3.0.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)",
+    "numpy (>=2.3.5,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

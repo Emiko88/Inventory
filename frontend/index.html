@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search inventory</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="search-area">
+        <h1>Inventory Hub</h1>
+        <form action="/" method="GET">
+            <input type="text" id="searchInput" name="q" value="{{ query or '' }}" placeholder="Input Material, Part Number..." required autofocus>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if query %}
+        <div class="results-info">
+            Results: <strong>{{ results|length }}</strong>
+        </div>
+
+        {% for row in results %}
+        <div class="result-card">
+            <div class="header">
+                <div class="title highlightable">{{ row.material }}</div>
+
+                <div class="badge" style="background-color: {% if row.score == 1.0 %}#d1e7dd{% elif row.score >= 0.8 %}#fff3cd{% else %}#cff4fc{% endif %};">
+                    Score: {{ row.score }}
+                </div>
+            </div>
+
+            <div class="desc highlightable">{{ row.description }}</div>
+
+            <div class="details">
+                <div><b>Part #:</b> <span class="highlightable">{{ row.part_number }}</span></div>
+                <div><b>Stock:</b> {{ row.stock_level }} {{ row.unit }}</div>
+                <div><b>Location:</b> {{ row.location }}</div>
+                <div><b>Mfg:</b> {{ row.manufacturer }}</div>
+                <div><b>Type:</b> {{ row.type }}</div>
+            </div>
+        </div>
+        {% else %}
+            <div class="no-results">
+                По запросу "<b>{{ query }}</b>" ничего не найдено.
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const query = "{{ query }}";
+        if (!query) return;
+
+        // Экранируем спецсимволы, чтобы поиск не ломался от скобок
+        const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${safeQuery})`, "gi");
+
+        document.querySelectorAll('.highlightable').forEach(el => {
+            // Заменяем найденный текст на тег <mark>
+            el.innerHTML = el.innerHTML.replace(regex, '<mark>$1</mark>');
+        });
+    });
+</script>
+
+</body>
+</html>
