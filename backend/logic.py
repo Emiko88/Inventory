@@ -13,15 +13,13 @@ class InventoryService:
             base_path = Path(__file__).parent
             file_path = base_path / "data" / "inventory.xlsx"
 
-            print(f"Загружаю файл из: {file_path}")
-
             self.df = pd.read_excel(file_path, dtype=str).fillna("")
 
             self.df.columns = self.df.columns.str.strip().str.lower()
             print(f"Успешно загружено {len(self.df)} записей.")
 
         except Exception as e:
-            print(f"КРИТИЧЕСКАЯ ОШИБКА ЗАГРУЗКИ: {e}")
+            print(f"Ошибка загрузки: {e}")
             self.df = pd.DataFrame()
 
     def _calculate_score(self, row, query: str) -> float:
