@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Inventory</title>
+    <link rel="apple-touch-icon" sizes="57x57" href="static/icons/favicon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="static/icons/favicon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="static/icons/favicon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="static/icons/favicon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="static/icons/favicon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="static/icons/favicon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="static/icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="static/icons/favicon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="static/icons/favicon-180x180.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="static/icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="static/icons/favicon-192x192.png">
+    <link rel="shortcut icon" type="image/x-icon" href="static/icons/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="static/icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="static/icons/favicon-144x144.png">
+    <meta name="msapplication-config" content="static/icons/browserconfig.xml">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -27,17 +45,18 @@
                     {% if row.operator %}
                     <div class="field-group">
                         <span class="meta-label">Operator</span>
-                        <span class="operator-value highlightable">{{ row.operator }}</span>
+                        <span class="operator-value highlightable">{{ row.operator | highlight(query) }}</span>
                     </div>
                     {% endif %}
 
                     <div class="field-group">
                         <span class="meta-label">Material ID</span>
-                        <h2 class="material-title highlightable">{{ row.material }}</h2>
+                        <h2 class="material-title highlightable">{{ row.material | highlight(query) }}</h2>
                     </div>
                 </div>
 
-                <div class="score-badge" style="background-color: {% if row.score == 1.0 %}#d1e7dd{% elif row.score >= 0.8 %}#fff3cd{% else %}#cff4fc{% endif %};">
+                <div class="score-badge" style="{% if row.score >= 2.0 %} background-color: #d1e7dd; color: #0f5132; /* Зеленый (Супер) */ {% elif row.score >= 1.5 %}
+                    background-color: #cff4fc; color: #055160; /* Синий (Точное совпадение 1 слова) */ {% else %} background-color: #fff3cd; color: #664d03; /* Желтый (Частичные совпадения) */ {% endif %}">
                     Score: {{ row.score }}
                 </div>
             </div>
@@ -45,17 +64,19 @@
             {% if row.description %}
             <div class="desc-wrapper">
                 <span class="meta-label">Description</span>
-                <div class="description-block highlightable">{{ row.description }}</div>
+                <div class="description-block">
+                    {{ row.description | format_desc(query) }}
+                </div>
             </div>
             {% endif %}
 
             <div class="details-grid">
                 {% for key, value in row.items() %}
-                    {% if key not in ['score', 'operator', 'material', 'description'] %}
+                    {% if key not in ['score', 'operator', 'material', 'description', 'search_index'] %}
                         {% if value and value != "nan" and value != "" %}
                         <div class="detail-item">
                             <span class="label">{{ key.replace('_', ' ') }}</span>
-                            <span class="value highlightable">{{ value }}</span>
+                            <span class="value highlightable">{{ value | highlight(query) }}</span>
                         </div>
                         {% endif %}
                     {% endif %}
@@ -68,23 +89,6 @@
         {% endfor %}
     {% endif %}
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const query = "{{ query }}";
-        if (!query) return;
-        const words = query.split(/\s+/).filter(w => w.length > 0);
-        words.forEach(word => {
-            const safeWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(${safeWord})`, "gi");
-            document.querySelectorAll('.highlightable').forEach(el => {
-                if (!el.innerHTML.includes('<mark>')) {
-                     el.innerHTML = el.innerHTML.replace(regex, '<mark>$1</mark>');
-                }
-            });
-        });
-    });
-</script>
 
 </body>
 </html>
